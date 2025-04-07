@@ -1,0 +1,317 @@
+Verify Docker Version
+---------------------
+# docker version
+
+View System Wide Information in detail
+--------------------------------------
+# docker info
+
+Search the Images
+-----------------
+# docker search <Image name> 
+# docker search ubuntu
+
+Download Docker Container Images
+--------------------------------
+# docker pull <Image name:tag>
+# docker pull ubuntu:20.04
+# docker pull ubuntu:22.04
+
+
+# docker pull centos:8
+# docker pull nginx  
+
+
+
+View Downloaded Docker Container Images
+---------------------------------------
+# docker image ls 
+		(or )
+# docker images
+
+
+
+# docker run -d --name=mynginx nginx
+
+Type exit to stop / shutdown the container and if want to get out from the container without stopping it then type “ctrl+p+q”
+
+ 
+
+
+Run Container in detach mode
+----------------------------
+#docker run -it -d --name=httpd-container httpd
+Here -it = Interactive Terminal
+     -d = detach
+
+
+View All Running Containers
+---------------------------
+# docker ps
+Here ps = process
+
+
+View all running along with exited or stopped containers
+--------------------------------------------------------
+#docker ps -a
+Here ps = process
+     -a = all
+
+
+publish port to access from external machine
+--------------------------------------------
+docker run -d -p <host port>:<container port> --name=httpd-container httpd
+docker run -d -p 8081:80 --name=httpd-container httpd
+docker run -d -p 8082:80--name=httpd-container nginx
+Here -p = port mapping
+
+
+View latest container
+---------------------
+#docker ps -l
+
+
+
+Container Console Access
+------------------------
+# docker exec -it <container name or id> bash
+# docker exec -it httpd-container bash
+Here exec = execute
+     -it = Interactive Terminal
+
+
+
+Start, Stop, Restart and Kill Containers
+----------------------------------------
+# docker stop <container name or id>
+# docker stop httpd-container
+
+# docker start <container name or id>
+
+# docker restart <container name or id>
+ 
+# docker kill <container name or id>
+
+#docker pause 
+
+docker unpause
+
+
+Remove a Container
+------------------
+# docker stop nginx-container
+# docker rm nginx-container
+Here rm = remove
+
+To remove a running container forcefully then use ‘-f’ option in docker rm command
+----------------------------------------------------------------------------------
+# docker rm -f nginx-container
+
+Remove Docker Container Images
+------------------------------
+# docker rmi ubuntu:20.04
+# docker rmi 54c9d81cbb44
+Here rmi = remove image
+
+
+Check the container details
+---------------------------
+# docker inspect {container_name_or_container_id}
+# docker container inspect {container_name_or_container_id}
+
+
+
+View Logs from the Container
+----------------------------
+# docker logs {container_name_or_container_id}
+
+# docker logs nginx-container
+
+To view the live logs use ‘-f’ option in docker logs command
+#docker logs -f nginx-container
+
+To view last 10 logs from a container, run
+#docker logs --tail 10 nginx-container
+
+
+
+
+Copy files/folder to Container
+------------------------------
+# docker cp index.html mynginx-container:/usr/share/nginx/html
+# docker cp index.html httpd-container:/usr/local/apache2/htdocs
+
+From container to ubuntu machine
+--------------------------------
+# docker cp httpd-container:/usr/local/apache2/htdocs/test .
+
+
+Check the image details
+-----------------------
+# docker image inspect {Image_Name OR Image_id}
+
+
+View History of a Docker Image
+------------------------------
+# docker history {Image_Name OR Image_id}
+# docker history nginx-container
+ 
+
+
+Commit Changes to Image
+-----------------------
+# docker commit [container_id] [new_image_name:tag]
+
+Set Tag to Docker Image
+-----------------------
+docker tag source_image{:tag}  target_image{:tag}
+
+
+
+To save a docker image to a tar file
+-------------------------------------
+ # docker save nginx -o mynginx.tar
+
+
+To load a docker image from a tar file
+--------------------------------------
+# docker load -i mynginx.tar
+ 
+
+
+Display Container(s) Resource Usage Statistics
+----------------------------------------------
+# docker stats
+
+
+To view stats of a specific container
+-------------------------------------
+# docker stats nginx-container
+
+
+
+Resource usage statistics without live streaming
+---------------------------------------------------
+# docker stats --no-stream
+
+
+display the running processes of a container
+-------------------------------------------------
+# docker top {Container_Name_OR_ID}
+# docker top httpd-container
+
+
+
+volumes- there are two types of volume - docker volume, bind mount 
+-------------------------------------------------------------------------
+
+1) docker volume
+-----------------
+Create volume
+-------------
+
+# docker volume create dev-mysql-data
+# docker volume ls
+
+Create mount point
+------------------
+# docker run -it -d --name=docker-name -v Volume-name:path image_name command  
+# docker run -it -d --name=httpd-service5 -v vol-data:/mnt httpd bash
+
+Path to created volume list
+---------------------------
+# cd /var/lib/docker/volumes/ - Here the created volumes will be displayed
+
+Login to container and see the files in /mnt
+--------------------------------------------
+# docker exec -it httpd-service5 bash
+# cd /mnt
+
+
+2) Bind mount
+-------------
+
+Mounting the local machine to container
+---------------------------------------
+# docker run -it -d --name=Container-name -v /source-path:destination-path Image-Name bash
+# docker run -it -d --name=httpd-service -v /mount:/mnt httpd bash
+
+
+
+
+
+
+DOCKER NETWORK
+--------------
+
+To list number of network created
+----------------------------------
+# docker network ls 
+
+to inspect the network without going inside
+--------------------------------------------
+docker network inspect my-network
+
+
+create new network
+-------------------
+# docker network create <network-name>
+# docker network create my-network
+
+
+connecting the created network to container
+--------------------------------------------
+# docker network connect <Network-Name> <Container-Name>
+# docker network connect my-network mynginx
+
+
+creating new container with network 
+----------------------------------
+# docker -it --name=ContainerName --network <Network-Name> <Image-Name> Command
+# docker -it --name=httpd-const --network my-network httpd bash
+
+
+creating a specified network IP address of our choice
+------------------------------------------------------
+# docker network create --driver bridge --subnet IP/Subnet --gateway IP <Network-Name>
+# docker network create --driver bridge --subnet 192.168.1.0/24 --gateway 192.168.1.1 my-network2
+
+
+
+creating a container using the IP address above
+------------------------------------------------
+# docker run -it --name=<Container-Name> --network <Network-Name> --ip <IP-Address> <Image-Name> <Command>
+# docker run -it --name=httpd-5 --network my-network --ip 192.168.1.50 httpd bash
+
+
+
+
+
+DOCKER FILE
+------------
+
+Step-1: create a directory 
+Step-2: Inside the directory create a file called Dockerfile 
+Step-3: give the content = 
+
+	FROM oraclelinux:9
+
+	RUN yum install -y net-tools && yum install httpd -y
+
+	RUN mkdir /opt/test
+
+	COPY index.html /var/www/html
+
+	RUN echo "Dockerfile Test on Aapche httpd" > /var/www/html/index2.html
+
+	EXPOSE 80
+
+	CMD ["/usr/sbin/httpd", "-D", "FOREGROUND" ]
+
+Step-4: docker build -t <Image-Name>:<tag> .
+	docker build -t httpd:v1 . = This will create docker image
+	using the dockerfile that we have added
+
+Step-5: docker run -it -d --name=<container-Name> -p <port-mapping> <Image-Name> <Command>
+	docker run -it -d --name=httpd-service -p 8080:80 httpd bash
+     =  We are opening the port so that we can access locally
